@@ -1,0 +1,21 @@
+# # -f 指定文件名，up 表示启动，-d 表示后台运行
+# docker compose -f /home/hk/code/datahunt/src/pipeline/config/mysql.yml up -d
+# docker compose -f /home/hk/code/datahunt/src/pipeline/config/mysql.yml down -v
+# docker exec -it mysql-db mysql -u root -p123
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "123"
+      MYSQL_DATABASE: bird
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - /home/hk/code/datahunt/data/minidev/MINIDEV_mysql/BIRD_dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  db_data:

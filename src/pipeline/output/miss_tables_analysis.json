@@ -1,0 +1,78 @@
+[
+  {
+    "question_id": 1110,
+    "db_id": "european_football_2",
+    "ground_truth_tables": [
+      "team",
+      "team_attributes"
+    ],
+    "miss_tables": [
+      "team"
+    ],
+    "question": "Tell the build Up play passing class for \"FC Lorient\" on 2010/2/22.",
+    "evidence": "\"FC Lorient\" refers to team_long_name = 'FC Lorient'; on 2010/2/22 refers to date LIKE '2010-02-22%';",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "team_attributes",
+      "posts",
+      "match",
+      "player_attributes",
+      "votes",
+      "users",
+      "constructors",
+      "legalities",
+      "constructorresults",
+      "constructorstandings",
+      "comments",
+      "league",
+      "player",
+      "qualifying",
+      "laboratory",
+      "set_translations",
+      "trans",
+      "country",
+      "transactions_1k",
+      "drivers"
+    ],
+    "recall": 0.5,
+    "metric_type": "augmented"
+  },
+  {
+    "question_id": 1115,
+    "db_id": "european_football_2",
+    "ground_truth_tables": [
+      "player",
+      "player_attributes"
+    ],
+    "miss_tables": [
+      "player"
+    ],
+    "question": "What percentage is Landon Donovan's overall rating higher than Jordan Bowery on 2013/7/12?",
+    "evidence": "Landon Donovan's refers to player_name = 'Landon Donovan'; Jordan Bowery refers to player_name = 'Jordan Bowery'; percentage refers to DIVIDE(SUBTRACT(player_name = 'Landon Donovan' overall_rating; player_name = 'Jordan Bowery' overall_rating), player_name = 'Landon Donovan' overall_rating)*100",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "player_attributes",
+      "posts",
+      "users",
+      "comments",
+      "posthistory",
+      "satscores",
+      "yearmonth",
+      "team_attributes",
+      "laboratory",
+      "district",
+      "races",
+      "superhero",
+      "postlinks",
+      "badges",
+      "constructors",
+      "constructorstandings",
+      "sets",
+      "frpm",
+      "member",
+      "trans"
+    ],
+    "recall": 0.5,
+    "metric_type": "augmented"
+  }
+]

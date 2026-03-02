@@ -1,0 +1,645 @@
+[
+  {
+    "question_id": 1472,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "customers",
+      "yearmonth"
+    ],
+    "miss_tables": [
+      "customers"
+    ],
+    "question": "In 2012, who had the least consumption in LAM?",
+    "evidence": "Year 2012 can be presented as Between 201201 And 201212; The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "yearmonth",
+      "transactions_1k",
+      "seasons",
+      "expense",
+      "member",
+      "users",
+      "loan",
+      "races",
+      "badges",
+      "income"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 1479,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "customers",
+      "yearmonth"
+    ],
+    "miss_tables": [
+      "customers"
+    ],
+    "question": "Which year recorded the most consumption of gas paid in CZK?",
+    "evidence": "The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "yearmonth",
+      "expense",
+      "seasons",
+      "gasstations",
+      "member",
+      "transactions_1k",
+      "trans",
+      "connected",
+      "patient",
+      "races"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 1500,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "products",
+      "transactions_1k",
+      "yearmonth"
+    ],
+    "miss_tables": [
+      "transactions_1k"
+    ],
+    "question": "Please list the product description of the products consumed in September, 2013.",
+    "evidence": "September 2013 refers to 201309; The first 4 strings of the Date values in the yearmonth table can represent year; The 5th and 6th string of the date can refer to month.",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "yearmonth",
+      "expense",
+      "badges",
+      "products",
+      "postlinks",
+      "races",
+      "loan",
+      "member",
+      "income",
+      "connected"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 1514,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "customers",
+      "gasstations",
+      "transactions_1k"
+    ],
+    "miss_tables": [
+      "gasstations"
+    ],
+    "question": "What kind of currency did the customer paid at 16:25:00 in 2012/8/24?",
+    "evidence": "'2012/8/24' can be represented by '2012-08-24'; ",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "customers",
+      "transactions_1k",
+      "yearmonth",
+      "schools",
+      "loan",
+      "connected",
+      "trans",
+      "bond",
+      "order",
+      "users"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 1524,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "gasstations",
+      "transactions_1k"
+    ],
+    "miss_tables": [
+      "gasstations"
+    ],
+    "question": "What's the nationality of the customer who spent 548.4 in 2012/8/24?",
+    "evidence": "'2012/8/24' can be represented by '2012-08-24'",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "transactions_1k",
+      "customers",
+      "yearmonth",
+      "constructors",
+      "order",
+      "budget",
+      "client",
+      "drivers",
+      "trans",
+      "connected"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 1526,
+    "db_id": "debit_card_specializing",
+    "ground_truth_tables": [
+      "gasstations",
+      "transactions_1k",
+      "yearmonth"
+    ],
+    "miss_tables": [
+      "gasstations"
+    ],
+    "question": "For the customer who paid 634.8 in 2012/8/25, what was the consumption decrease rate from Year 2012 to 2013?",
+    "evidence": "'2012/8/24' can be represented by '2012-08-24'; Consumption decrease rate = (consumption_2012 - consumption_2013) / consumption_2012",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "yearmonth",
+      "transactions_1k",
+      "customers",
+      "expense",
+      "users",
+      "loan",
+      "connected",
+      "races",
+      "posthistory",
+      "card"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 1334,
+    "db_id": "student_club",
+    "ground_truth_tables": [
+      "member",
+      "zip_code"
+    ],
+    "miss_tables": [
+      "zip_code"
+    ],
+    "question": "List the full name of the Student_Club members that grew up in Illinois state.",
+    "evidence": "full name of member refers to first_name, last_name",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "member",
+      "superhero",
+      "income",
+      "schools",
+      "drivers",
+      "users",
+      "major",
+      "expense",
+      "client",
+      "team"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 1464,
+    "db_id": "student_club",
+    "ground_truth_tables": [
+      "attendance",
+      "event",
+      "income",
+      "member"
+    ],
+    "miss_tables": [
+      "attendance",
+      "event"
+    ],
+    "question": "Write the full names of students who received funds on the date of 9/9/2019 and include the amount received.",
+    "evidence": "full name refers to first_name, last_name, amount of funds received refers to amount, received funds on date refers to date_received",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "income",
+      "member",
+      "superhero",
+      "loan",
+      "races",
+      "expense",
+      "order",
+      "frpm",
+      "drivers",
+      "team"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 1302,
+    "db_id": "thrombosis_prediction",
+    "ground_truth_tables": [
+      "examination",
+      "laboratory",
+      "patient"
+    ],
+    "miss_tables": [
+      "patient"
+    ],
+    "question": "For the patients with a normal range of creatinine phosphokinase, how many of them have a positive measure of degree of coagulation?",
+    "evidence": "normal range of creatinine phosphokinase refers to CPK < 250; positive measure of degree of coagulation refers to KCT = '+' or RVVT = '+' or LAC = '+' ;",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "examination",
+      "laboratory",
+      "satscores",
+      "posthistory",
+      "cards",
+      "tags",
+      "molecule",
+      "users",
+      "schools",
+      "frpm"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 1048,
+    "db_id": "european_football_2",
+    "ground_truth_tables": [
+      "player",
+      "player_attributes"
+    ],
+    "miss_tables": [
+      "player"
+    ],
+    "question": "What is the overall rating of the football player Gabriel Tamas in year 2011?",
+    "evidence": "in year 2011 refers to strftime('%Y', date) = '2011';",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "player_attributes",
+      "team_attributes",
+      "seasons",
+      "posts",
+      "badges",
+      "match",
+      "comments",
+      "races",
+      "laptimes",
+      "qualifying"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 892,
+    "db_id": "formula_1",
+    "ground_truth_tables": [
+      "drivers",
+      "driverstandings",
+      "races"
+    ],
+    "miss_tables": [
+      "races"
+    ],
+    "question": "State the driver with the most points scored. Find his full name with that points.",
+    "evidence": "the most points scored refers to max(points); Full name of the driver refers to drivers.forename and drivers.surname;",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "driverstandings",
+      "drivers",
+      "results",
+      "laptimes",
+      "pitstops",
+      "constructorstandings",
+      "qualifying",
+      "constructorresults",
+      "status",
+      "superhero"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 909,
+    "db_id": "formula_1",
+    "ground_truth_tables": [
+      "circuits",
+      "races"
+    ],
+    "miss_tables": [
+      "circuits"
+    ],
+    "question": "Among all European Grand Prix races, what is the percentage of the races were hosted in Germany?",
+    "evidence": "European Grand Prix races refers to races.name = 'European Grand Prix';percentage = divide(COUNT(races where country = Germany and name = 'Europearn Grand Prix'),COUNT(races where name = 'Europearn Grand Prix'))*100",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "races",
+      "league",
+      "seasons",
+      "laptimes",
+      "results",
+      "pitstops",
+      "driverstandings",
+      "superhero",
+      "race",
+      "country"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 347,
+    "db_id": "card_games",
+    "ground_truth_tables": [
+      "cards",
+      "rulings"
+    ],
+    "miss_tables": [
+      "rulings"
+    ],
+    "question": "Find all cards illustrated by Stephen Daniel and describe the text of the ruling of these cards. State if these cards have missing or degraded properties and values.",
+    "evidence": "cards have missing or degraded properties and value refers to hasContentWarning = 1; 'Stephen Daniele' is artist; Find all cards refers to return card id",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "cards",
+      "sets",
+      "card",
+      "set_translations",
+      "foreign_data",
+      "attribute",
+      "hero_attribute",
+      "legalities",
+      "drivers",
+      "alignment"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 408,
+    "db_id": "card_games",
+    "ground_truth_tables": [
+      "cards",
+      "rulings"
+    ],
+    "miss_tables": [
+      "rulings"
+    ],
+    "question": "How many unknown power cards contain info about the triggered ability",
+    "evidence": "unknown power cards refers to power is null or power = '*';contain info about the triggered ability refers to text contains 'triggered ability'",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "hero_power",
+      "cards",
+      "superpower",
+      "sets",
+      "tags",
+      "foreign_data",
+      "status",
+      "attribute",
+      "posts",
+      "card"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 25,
+    "db_id": "california_schools",
+    "ground_truth_tables": [
+      "frpm",
+      "satscores"
+    ],
+    "miss_tables": [
+      "frpm"
+    ],
+    "question": "Name schools in Riverside which the average of average math score for SAT is grater than 400, what is the funding type of these schools?",
+    "evidence": "Average of average math = sum(average math scores) / count(schools).",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "satscores",
+      "tags",
+      "schools",
+      "zip_code",
+      "income",
+      "district",
+      "posts",
+      "major",
+      "circuits",
+      "loan"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 94,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "district"
+    ],
+    "miss_tables": [
+      "disp"
+    ],
+    "question": "List out the account numbers of female clients who are oldest and has lowest average salary, calculate the gap between this lowest average salary with the highest average salary?",
+    "evidence": "Female means gender = 'F'; A11 refers to average salary; Gap = highest average salary - lowest average salary; If the person A's birthdate > B's birthdate, it means that person B is order than person A.",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "gender",
+      "client",
+      "order",
+      "loan",
+      "account",
+      "district",
+      "patient",
+      "card",
+      "income",
+      "users"
+    ],
+    "recall": 0.75
+  },
+  {
+    "question_id": 95,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "district"
+    ],
+    "miss_tables": [
+      "disp"
+    ],
+    "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+    "evidence": "If the person A's birthdate < B's birthdate, it means that person B is younger than person A; A11 refers to average salary",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "client",
+      "district",
+      "loan",
+      "account",
+      "users",
+      "card",
+      "income",
+      "patient",
+      "tags",
+      "trans"
+    ],
+    "recall": 0.75
+  },
+  {
+    "question_id": 137,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "district",
+      "loan"
+    ],
+    "miss_tables": [
+      "district"
+    ],
+    "question": "How many accounts have running contracts in Branch location 1?",
+    "evidence": "Status = 'C' stands for running contract, OK so far; Status = 'D' stands for running contract, client in debt",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "disp",
+      "loan",
+      "order",
+      "trans",
+      "account",
+      "schools",
+      "status",
+      "users",
+      "driverstandings",
+      "client"
+    ],
+    "recall": 0.6666666666666666
+  },
+  {
+    "question_id": 145,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "trans"
+    ],
+    "miss_tables": [
+      "account"
+    ],
+    "question": "Who are the account holder identification numbers whose who have transactions on the credit card with the amount is less than the average, in 1998?",
+    "evidence": "Operation = 'VYBER KARTOU' refers to credit card withdrawal",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "card",
+      "trans",
+      "loan",
+      "cards",
+      "order",
+      "drivers",
+      "laboratory",
+      "patient",
+      "set_translations",
+      "users"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 159,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "trans"
+    ],
+    "miss_tables": [
+      "account"
+    ],
+    "question": "List all the withdrawals in cash transactions that the client with the id 3356 makes.",
+    "evidence": "operation = 'VYBER' refers to withdrawal in cash",
+    "difficulty": "simple",
+    "retrieved_tables": [
+      "trans",
+      "disp",
+      "transactions_1k",
+      "order",
+      "match",
+      "client",
+      "loan",
+      "comments",
+      "customers",
+      "expense"
+    ],
+    "recall": 0.75
+  },
+  {
+    "question_id": 169,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "loan"
+    ],
+    "miss_tables": [
+      "disp"
+    ],
+    "question": "What was the growth rate of the total amount of loans across all accounts for a male client between 1996 and 1997?",
+    "evidence": "Growth rate = (sum of amount_1997 - sum of amount_1996) / (sum of amount_1996) * 100%; Male refers to gender = 'M'",
+    "difficulty": "challenging",
+    "retrieved_tables": [
+      "loan",
+      "account",
+      "client",
+      "gender",
+      "district",
+      "order",
+      "customers",
+      "yearmonth",
+      "card",
+      "trans"
+    ],
+    "recall": 0.75
+  },
+  {
+    "question_id": 186,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "district"
+    ],
+    "miss_tables": [
+      "disp",
+      "district"
+    ],
+    "question": "What percentage of male clients request for weekly statements to be issued?",
+    "evidence": "Percentage of male clients = [count(male clients who requested weekly statements / count(clients who requested weekly statements)] * 100%; Male means gender = 'M'; 'POPLATEK TYDNE' stands for weekly issuance",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "account",
+      "gender",
+      "client",
+      "order",
+      "tags",
+      "customers",
+      "trans",
+      "superhero",
+      "yearmonth",
+      "loan"
+    ],
+    "recall": 0.5
+  },
+  {
+    "question_id": 189,
+    "db_id": "financial",
+    "ground_truth_tables": [
+      "account",
+      "client",
+      "disp",
+      "district"
+    ],
+    "miss_tables": [
+      "disp"
+    ],
+    "question": "Name the account numbers of female clients who are oldest and have lowest average salary?",
+    "evidence": "Female refers to 'F' in the gender; A11 contains information about average salary",
+    "difficulty": "moderate",
+    "retrieved_tables": [
+      "gender",
+      "district",
+      "client",
+      "loan",
+      "order",
+      "account",
+      "trans",
+      "customers",
+      "patient",
+      "users"
+    ],
+    "recall": 0.75
+  }
+]

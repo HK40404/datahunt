@@ -1,0 +1,789 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "id": "frpm"
+    },
+    {
+      "id": "schools"
+    },
+    {
+      "id": "satscores"
+    },
+    {
+      "id": "district"
+    },
+    {
+      "id": "loan"
+    },
+    {
+      "id": "account"
+    },
+    {
+      "id": "disp"
+    },
+    {
+      "id": "trans"
+    },
+    {
+      "id": "client"
+    },
+    {
+      "id": "card"
+    },
+    {
+      "id": "order"
+    },
+    {
+      "id": "atom"
+    },
+    {
+      "id": "molecule"
+    },
+    {
+      "id": "connected"
+    },
+    {
+      "id": "bond"
+    },
+    {
+      "id": "cards"
+    },
+    {
+      "id": "rulings"
+    },
+    {
+      "id": "foreign_data"
+    },
+    {
+      "id": "set_translations"
+    },
+    {
+      "id": "sets"
+    },
+    {
+      "id": "legalities"
+    },
+    {
+      "id": "posts"
+    },
+    {
+      "id": "users"
+    },
+    {
+      "id": "badges"
+    },
+    {
+      "id": "comments"
+    },
+    {
+      "id": "votes"
+    },
+    {
+      "id": "postlinks"
+    },
+    {
+      "id": "posthistory"
+    },
+    {
+      "id": "tags"
+    },
+    {
+      "id": "hero_power"
+    },
+    {
+      "id": "superpower"
+    },
+    {
+      "id": "superhero"
+    },
+    {
+      "id": "colour"
+    },
+    {
+      "id": "publisher"
+    },
+    {
+      "id": "race"
+    },
+    {
+      "id": "alignment"
+    },
+    {
+      "id": "hero_attribute"
+    },
+    {
+      "id": "gender"
+    },
+    {
+      "id": "attribute"
+    },
+    {
+      "id": "circuits"
+    },
+    {
+      "id": "races"
+    },
+    {
+      "id": "constructors"
+    },
+    {
+      "id": "constructorstandings"
+    },
+    {
+      "id": "constructorresults"
+    },
+    {
+      "id": "drivers"
+    },
+    {
+      "id": "qualifying"
+    },
+    {
+      "id": "seasons"
+    },
+    {
+      "id": "results"
+    },
+    {
+      "id": "laptimes"
+    },
+    {
+      "id": "driverstandings"
+    },
+    {
+      "id": "pitstops"
+    },
+    {
+      "id": "status"
+    },
+    {
+      "id": "match"
+    },
+    {
+      "id": "team"
+    },
+    {
+      "id": "player"
+    },
+    {
+      "id": "player_attributes"
+    },
+    {
+      "id": "league"
+    },
+    {
+      "id": "team_attributes"
+    },
+    {
+      "id": "country"
+    },
+    {
+      "id": "examination"
+    },
+    {
+      "id": "patient"
+    },
+    {
+      "id": "laboratory"
+    },
+    {
+      "id": "major"
+    },
+    {
+      "id": "member"
+    },
+    {
+      "id": "attendance"
+    },
+    {
+      "id": "event"
+    },
+    {
+      "id": "zip_code"
+    },
+    {
+      "id": "budget"
+    },
+    {
+      "id": "income"
+    },
+    {
+      "id": "expense"
+    },
+    {
+      "id": "customers"
+    },
+    {
+      "id": "yearmonth"
+    },
+    {
+      "id": "transactions_1k"
+    },
+    {
+      "id": "gasstations"
+    },
+    {
+      "id": "products"
+    }
+  ],
+  "edges": [
+    {
+      "weight": 17,
+      "source": "frpm",
+      "target": "schools"
+    },
+    {
+      "weight": 3,
+      "source": "frpm",
+      "target": "satscores"
+    },
+    {
+      "weight": 15,
+      "source": "schools",
+      "target": "satscores"
+    },
+    {
+      "weight": 5,
+      "source": "district",
+      "target": "loan"
+    },
+    {
+      "weight": 9,
+      "source": "district",
+      "target": "client"
+    },
+    {
+      "weight": 22,
+      "source": "district",
+      "target": "account"
+    },
+    {
+      "weight": 1,
+      "source": "district",
+      "target": "trans"
+    },
+    {
+      "weight": 2,
+      "source": "district",
+      "target": "disp"
+    },
+    {
+      "weight": 13,
+      "source": "loan",
+      "target": "account"
+    },
+    {
+      "weight": 1,
+      "source": "loan",
+      "target": "card"
+    },
+    {
+      "weight": 20,
+      "source": "account",
+      "target": "disp"
+    },
+    {
+      "weight": 14,
+      "source": "account",
+      "target": "trans"
+    },
+    {
+      "weight": 2,
+      "source": "account",
+      "target": "order"
+    },
+    {
+      "weight": 15,
+      "source": "disp",
+      "target": "client"
+    },
+    {
+      "weight": 9,
+      "source": "disp",
+      "target": "card"
+    },
+    {
+      "weight": 1,
+      "source": "client",
+      "target": "card"
+    },
+    {
+      "weight": 28,
+      "source": "atom",
+      "target": "molecule"
+    },
+    {
+      "weight": 14,
+      "source": "atom",
+      "target": "connected"
+    },
+    {
+      "weight": 9,
+      "source": "atom",
+      "target": "bond"
+    },
+    {
+      "weight": 1,
+      "source": "molecule",
+      "target": "connected"
+    },
+    {
+      "weight": 16,
+      "source": "molecule",
+      "target": "bond"
+    },
+    {
+      "weight": 12,
+      "source": "connected",
+      "target": "bond"
+    },
+    {
+      "weight": 10,
+      "source": "cards",
+      "target": "rulings"
+    },
+    {
+      "weight": 16,
+      "source": "cards",
+      "target": "foreign_data"
+    },
+    {
+      "weight": 11,
+      "source": "cards",
+      "target": "legalities"
+    },
+    {
+      "weight": 7,
+      "source": "cards",
+      "target": "sets"
+    },
+    {
+      "weight": 3,
+      "source": "cards",
+      "target": "set_translations"
+    },
+    {
+      "weight": 1,
+      "source": "rulings",
+      "target": "legalities"
+    },
+    {
+      "weight": 1,
+      "source": "foreign_data",
+      "target": "legalities"
+    },
+    {
+      "weight": 20,
+      "source": "set_translations",
+      "target": "sets"
+    },
+    {
+      "weight": 21,
+      "source": "posts",
+      "target": "users"
+    },
+    {
+      "weight": 11,
+      "source": "posts",
+      "target": "comments"
+    },
+    {
+      "weight": 5,
+      "source": "posts",
+      "target": "votes"
+    },
+    {
+      "weight": 5,
+      "source": "posts",
+      "target": "postlinks"
+    },
+    {
+      "weight": 3,
+      "source": "posts",
+      "target": "posthistory"
+    },
+    {
+      "weight": 1,
+      "source": "posts",
+      "target": "posts"
+    },
+    {
+      "weight": 1,
+      "source": "posts",
+      "target": "tags"
+    },
+    {
+      "weight": 28,
+      "source": "users",
+      "target": "badges"
+    },
+    {
+      "weight": 7,
+      "source": "users",
+      "target": "comments"
+    },
+    {
+      "weight": 4,
+      "source": "users",
+      "target": "posthistory"
+    },
+    {
+      "weight": 1,
+      "source": "badges",
+      "target": "comments"
+    },
+    {
+      "weight": 1,
+      "source": "badges",
+      "target": "posthistory"
+    },
+    {
+      "weight": 1,
+      "source": "votes",
+      "target": "posthistory"
+    },
+    {
+      "weight": 12,
+      "source": "hero_power",
+      "target": "superpower"
+    },
+    {
+      "weight": 10,
+      "source": "hero_power",
+      "target": "superhero"
+    },
+    {
+      "weight": 1,
+      "source": "superpower",
+      "target": "alignment"
+    },
+    {
+      "weight": 14,
+      "source": "superhero",
+      "target": "colour"
+    },
+    {
+      "weight": 13,
+      "source": "superhero",
+      "target": "publisher"
+    },
+    {
+      "weight": 12,
+      "source": "superhero",
+      "target": "race"
+    },
+    {
+      "weight": 6,
+      "source": "superhero",
+      "target": "alignment"
+    },
+    {
+      "weight": 7,
+      "source": "superhero",
+      "target": "hero_attribute"
+    },
+    {
+      "weight": 1,
+      "source": "superhero",
+      "target": "gender"
+    },
+    {
+      "weight": 1,
+      "source": "superhero",
+      "target": "attribute"
+    },
+    {
+      "weight": 1,
+      "source": "colour",
+      "target": "colour"
+    },
+    {
+      "weight": 1,
+      "source": "colour",
+      "target": "hero_attribute"
+    },
+    {
+      "weight": 1,
+      "source": "colour",
+      "target": "race"
+    },
+    {
+      "weight": 2,
+      "source": "publisher",
+      "target": "gender"
+    },
+    {
+      "weight": 1,
+      "source": "publisher",
+      "target": "race"
+    },
+    {
+      "weight": 1,
+      "source": "publisher",
+      "target": "alignment"
+    },
+    {
+      "weight": 1,
+      "source": "race",
+      "target": "alignment"
+    },
+    {
+      "weight": 2,
+      "source": "race",
+      "target": "gender"
+    },
+    {
+      "weight": 1,
+      "source": "race",
+      "target": "hero_attribute"
+    },
+    {
+      "weight": 2,
+      "source": "alignment",
+      "target": "gender"
+    },
+    {
+      "weight": 3,
+      "source": "hero_attribute",
+      "target": "attribute"
+    },
+    {
+      "weight": 26,
+      "source": "circuits",
+      "target": "races"
+    },
+    {
+      "weight": 1,
+      "source": "circuits",
+      "target": "results"
+    },
+    {
+      "weight": 1,
+      "source": "races",
+      "target": "seasons"
+    },
+    {
+      "weight": 16,
+      "source": "races",
+      "target": "results"
+    },
+    {
+      "weight": 5,
+      "source": "races",
+      "target": "driverstandings"
+    },
+    {
+      "weight": 6,
+      "source": "races",
+      "target": "laptimes"
+    },
+    {
+      "weight": 2,
+      "source": "races",
+      "target": "drivers"
+    },
+    {
+      "weight": 1,
+      "source": "races",
+      "target": "pitstops"
+    },
+    {
+      "weight": 4,
+      "source": "constructors",
+      "target": "constructorstandings"
+    },
+    {
+      "weight": 1,
+      "source": "constructors",
+      "target": "constructorresults"
+    },
+    {
+      "weight": 2,
+      "source": "constructors",
+      "target": "results"
+    },
+    {
+      "weight": 4,
+      "source": "drivers",
+      "target": "qualifying"
+    },
+    {
+      "weight": 16,
+      "source": "drivers",
+      "target": "results"
+    },
+    {
+      "weight": 3,
+      "source": "drivers",
+      "target": "laptimes"
+    },
+    {
+      "weight": 6,
+      "source": "drivers",
+      "target": "driverstandings"
+    },
+    {
+      "weight": 5,
+      "source": "drivers",
+      "target": "pitstops"
+    },
+    {
+      "weight": 1,
+      "source": "results",
+      "target": "status"
+    },
+    {
+      "weight": 3,
+      "source": "match",
+      "target": "team"
+    },
+    {
+      "weight": 5,
+      "source": "match",
+      "target": "league"
+    },
+    {
+      "weight": 5,
+      "source": "match",
+      "target": "country"
+    },
+    {
+      "weight": 7,
+      "source": "match",
+      "target": "player"
+    },
+    {
+      "weight": 13,
+      "source": "team",
+      "target": "team_attributes"
+    },
+    {
+      "weight": 1,
+      "source": "team",
+      "target": "country"
+    },
+    {
+      "weight": 27,
+      "source": "player",
+      "target": "player_attributes"
+    },
+    {
+      "weight": 4,
+      "source": "league",
+      "target": "country"
+    },
+    {
+      "weight": 12,
+      "source": "examination",
+      "target": "patient"
+    },
+    {
+      "weight": 19,
+      "source": "examination",
+      "target": "laboratory"
+    },
+    {
+      "weight": 77,
+      "source": "patient",
+      "target": "laboratory"
+    },
+    {
+      "weight": 24,
+      "source": "major",
+      "target": "member"
+    },
+    {
+      "weight": 1,
+      "source": "major",
+      "target": "zip_code"
+    },
+    {
+      "weight": 1,
+      "source": "major",
+      "target": "expense"
+    },
+    {
+      "weight": 10,
+      "source": "member",
+      "target": "attendance"
+    },
+    {
+      "weight": 12,
+      "source": "member",
+      "target": "zip_code"
+    },
+    {
+      "weight": 6,
+      "source": "member",
+      "target": "income"
+    },
+    {
+      "weight": 9,
+      "source": "member",
+      "target": "expense"
+    },
+    {
+      "weight": 2,
+      "source": "member",
+      "target": "event"
+    },
+    {
+      "weight": 2,
+      "source": "member",
+      "target": "budget"
+    },
+    {
+      "weight": 12,
+      "source": "attendance",
+      "target": "event"
+    },
+    {
+      "weight": 19,
+      "source": "event",
+      "target": "budget"
+    },
+    {
+      "weight": 8,
+      "source": "budget",
+      "target": "expense"
+    },
+    {
+      "weight": 12,
+      "source": "customers",
+      "target": "yearmonth"
+    },
+    {
+      "weight": 4,
+      "source": "customers",
+      "target": "transactions_1k"
+    },
+    {
+      "weight": 2,
+      "source": "customers",
+      "target": "gasstations"
+    },
+    {
+      "weight": 1,
+      "source": "customers",
+      "target": "products"
+    },
+    {
+      "weight": 1,
+      "source": "yearmonth",
+      "target": "transactions_1k"
+    },
+    {
+      "weight": 8,
+      "source": "transactions_1k",
+      "target": "gasstations"
+    },
+    {
+      "weight": 1,
+      "source": "transactions_1k",
+      "target": "products"
+    }
+  ]
+}

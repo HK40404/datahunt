@@ -1,0 +1,38 @@
+MILVUS_URI: store/milvus.db
+
+# 火山
+# OPENAI_BASE_URL: https://ark.cn-beijing.volces.com/api/v3
+# OPENAI_MODEL: kimi-k2-thinking-251104
+
+# openrouter
+# OPENAI_BASE_URL: https://openrouter.ai/api/v1
+# OPENAI_MODEL: stepfun/step-3.5-flash:free
+
+# xiaomi
+OPENAI_BASE_URL: https://api.xiaomimimo.com/v1
+OPENAI_MODEL: mimo-v2-flash
+
+# aliyun
+# OPENAI_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+# OPENAI_MODEL: qwen-flash
+
+# meituan
+# OPENAI_BASE_URL: https://api.longcat.chat/openai
+# OPENAI_MODEL: LongCat-Flash-Thinking-2601
+
+GEMINI_MODEL: gemini-2.5-flash-lite
+
+# sql generate
+SQL_BASE_URL: https://api.xiaomimimo.com/v1
+SQL_MODEL: mimo-v2-flash
+
+# question skeleton
+SKELETON_EXTRACTOR_BASE_URL: https://api.xiaomimimo.com/v1
+SKELETON_EXTRACTOR_MODEL: mimo-v2-flash
+
+# rewrite
+REWRITE_BASE_URL: https://api.xiaomimimo.com/v1
+REWRITE_MODEL: mimo-v2-flash
+
+# langsmith
+LANGSMITH_PROJECT_NAME: "datahunt"

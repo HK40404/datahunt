@@ -1,0 +1,79 @@
+[project]
+name = "datahunt"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "langgraph>=1.0.4",
+    "vanna>=2.0.1",
+    "chromadb>=0.4.0",
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "pytest>=9.0.2",
+    "pydantic-settings>=2.12.0",
+    "pymilvus>=2.4.0",
+    "milvus-lite>=2.4.0",
+    "sentence-transformers>=2.7.0",
+    "transformers>=4.51.0",
+    "torch>=2.0.0",
+    "FlagEmbedding>=1.2.0",
+    "pymysql>=1.1.2",
+    "sqlglot>=28.5.0",
+    "networkx>=3.6.1",
+    "google-generativeai>=0.8.6",
+    "google-genai>=1.56.0",
+    "python-dotenv>=1.2.1",
+    "pytest-asyncio>=1.3.0",
+    "pyarrow==18.1.0",
+    "peft>=0.18.0",
+    "json-repair>=0.54.3",
+    "cryptography>=46.0.3",
+    "langsmith>=0.4.56",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-single-line = false
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+follow_imports = "skip"
+exclude = "src/pipeline"
+
+[dependency-groups]
+dev = []
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "slowapi>=0.1.9",
+]
+dev = [
+    "pyright>=1.1.408",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
+    "pre-commit>=4.2.0",
+]
