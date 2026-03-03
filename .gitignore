@@ -209,7 +209,6 @@ __marimo__/
 *.java
 *example/
 AGENTS.md
-CLAUDE.md
 
 store/
 logs/
@@ -217,4 +216,4 @@ data/
 .claude/
 .vscode/
 
-CLAUDE.md
+openspec/
