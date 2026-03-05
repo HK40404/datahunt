@@ -1,6 +1,6 @@
-# DataHunt: 基于大语言模型的自然语言转 SQL 工具
+# DataHunt
 ## 项目简介
-DataHunt 是一个高可用的自然语言转 SQL (Text-to-SQL) 智能体工具。本项目通过构建包含自我纠错机制的 Agentic Workflow、深度优化的 RAG 表召回链路，以及基于历史数据的动态学习机制，有效解决大模型在生成复杂 SQL 时的幻觉问题，并在业界权威数据集上取得了优异的执行成功率。
+DataHunt 是一个自然语言转 SQL (Text-to-SQL) 智能体工具。
 
 ## Workflow
 ![Architecture](assets/architecture.png)
