@@ -209,11 +209,12 @@ step_download_data() {
     echo -e "${GREEN}[3/7]${NC} 下载 BIRD 数据..."
 
     local data_dir="data/bird/mini_dev"
+    local mysql_dump="data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql"
     local mini_dev_url="https://drive.usercontent.google.com/download?id=13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG&export=download&authuser=0&confirm=t&uuid=96307f8f-f525-40f2-bc81-5a644744d750&at=AGN2oQ0JHauUIyibFkkblxj4FYgI:1773651631781"
 
-    # 如果数据已存在且不是 rebuild 模式，跳过
-    if [ -f "$data_dir/BIRD_dev.sql" ] && [ "$REBUILD" = "false" ]; then
-        echo "BIRD 数据已存在，跳过下载"
+    # 如果 MySQL dump 已存在且不是 rebuild 模式，跳过下载
+    if [ -f "$mysql_dump" ] && [ "$REBUILD" = "false" ]; then
+        echo "BIRD MySQL 数据已存在，跳过下载"
         return 0
     fi
 
@@ -224,7 +225,7 @@ step_download_data() {
     fi
 
     # 创建目录
-    mkdir -p "$data_dir"
+    mkdir -p data/bird
 
     # 下载 mini_dev 数据集
     echo "下载 BIRD mini_dev 数据集..."
@@ -237,143 +238,25 @@ step_download_data() {
     unzip -o "data/bird/minidev.zip" -d "data/bird/"
     rm -f "data/bird/minidev.zip"
 
-    # 创建 Python 脚本转换为 MySQL
-    cat > /tmp/convert_sqlite_to_mysql.py << 'SCRIPT_EOF'
-import os
-import sqlite3
-
-output_dir = "data/bird/mini_dev"
-os.makedirs(output_dir, exist_ok=True)
-
-mysql_dump = []
-
-# 查找解压后的 SQLite 数据库目录（排除 __MACOSX）
-db_base = None
-for root, dirs, files in os.walk("data/bird"):
-    # 跳过 __MACOSX 目录
-    if "__MACOSX" in root:
-        continue
-    for f in files:
-        if f.endswith(".sqlite"):
-            db_base = os.path.dirname(root)
-            break
-    if db_base:
-        break
-
-if not db_base or not os.path.exists(db_base):
-    print(f"错误: 未找到 SQLite 数据库目录")
-    exit(1)
-
-print(f"使用数据库目录: {db_base}")
-
-for db_name in os.listdir(db_base):
-    db_path = os.path.join(db_base, db_name, f"{db_name}.sqlite")
-    if not os.path.exists(db_path):
-        continue
-
-    print(f"处理数据库: {db_name}")
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        # 获取所有表
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
-
-        for table_name, in tables:
-            # 获取表结构
-            cursor.execute(f"PRAGMA table_info({table_name})")
-            columns = cursor.fetchall()
-
-            # 生成 CREATE TABLE 语句
-            col_defs = []
-            for col in columns:
-                col_name, col_type, notnull, default_val, pk = col[1], col[2], col[3], col[4], col[5]
-                col_type = col_type.replace('INTEGER', 'INT').replace('TEXT', 'VARCHAR(255)').replace('REAL', 'DOUBLE').replace('BLOB', 'BLOB')
-                col_def = f"`{col_name}` {col_type}"
-                if notnull:
-                    col_def += " NOT NULL"
-                if default_val:
-                    col_def += f" DEFAULT {default_val}"
-                if pk:
-                    col_def += " PRIMARY KEY"
-                col_defs.append(col_def)
-
-            create_sql = f"CREATE TABLE `{table_name}` (\n  " + ",\n  ".join(col_defs) + "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
-            mysql_dump.append(create_sql)
-
-            # 获取数据
-            cursor.execute(f"SELECT * FROM {table_name}")
-            rows = cursor.fetchall()
-
-            if rows:
-                # 生成 INSERT 语句
-                for row in rows:
-                    vals = []
-                    for val in row:
-                        if val is None:
-                            vals.append("NULL")
-                        elif isinstance(val, (int, float)):
-                            vals.append(str(val))
-                        else:
-                            escaped = str(val).replace("'", "''")
-                            vals.append(f"'{escaped}'")
-                    insert_sql = f"INSERT INTO `{table_name}` VALUES ({', '.join(vals)});"
-                    mysql_dump.append(insert_sql)
-
-        conn.close()
-        print(f"  完成: {db_name}")
-
-    except Exception as e:
-        print(f"  错误: {db_name} - {e}")
-
-# 写入 MySQL dump 文件
-with open(f"{output_dir}/BIRD_dev.sql", 'w') as f:
-    f.write("\n".join(mysql_dump))
-
-print(f"MySQL dump 已保存到: {output_dir}/BIRD_dev.sql")
-print("转换完成")
-SCRIPT_EOF
-
-    python3 /tmp/convert_sqlite_to_mysql.py
-
     echo -e "${GREEN}BIRD 数据下载完成${NC}"
 }
 
 step_import_data() {
     echo -e "${GREEN}[4/7]${NC} 导入数据到 MySQL..."
 
-    local data_dir="data/bird/mini_dev"
+    # 直接使用官方的 MySQL dump 文件
+    local sql_file="data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql"
 
-    # 检查数据目录
-    if [ ! -d "$data_dir" ]; then
-        echo -e "${RED}错误: 数据目录不存在，请先运行数据下载${NC}"
-        exit 1
-    fi
-
-    # 查找 MySQL dump 文件 (BIRD_dev.sql)
-    local sql_file=""
-    for f in "$data_dir"/*.sql; do
-        if [[ "$f" == *"BIRD"* ]]; then
-            sql_file="$f"
-            break
-        fi
-    done
-
-    # 如果没找到，查找第一个 sql 文件
-    if [ -z "$sql_file" ]; then
-        sql_file=$(ls "$data_dir"/*.sql 2>/dev/null | head -1)
-    fi
-
-    if [ -z "$sql_file" ] || [ ! -f "$sql_file" ]; then
-        echo -e "${RED}错误: 未找到 MySQL 数据文件 (*.sql)${NC}"
-        echo "请确保 $data_dir 目录下有 BIRD_dev.sql 文件"
+    # 检查数据文件是否存在
+    if [ ! -f "$sql_file" ]; then
+        echo -e "${RED}错误: MySQL 数据文件不存在: $sql_file${NC}"
+        echo "请先运行数据下载步骤"
         exit 1
     fi
 
     echo "使用 MySQL 数据文件: $sql_file"
 
-    # 直接导入完整的 MySQL dump 文件（包含表结构和数据）
+    # 直接导入官方的 MySQL dump 文件
     echo "导入数据到 MySQL（这可能需要几分钟）..."
     docker exec -i datahunt-mysql mysql -u root -p123 bird < "$sql_file"
 
