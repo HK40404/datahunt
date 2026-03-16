@@ -15,6 +15,7 @@ NC='\033[0m' # No Color
 SKIP_MYSQL=false
 SKIP_DATA=false
 SKIP_EMBED=false
+SKIP_SKELETON=true  # 问题骨架嵌入默认跳过
 REBUILD=false
 
 # 显示帮助
@@ -25,6 +26,8 @@ show_help() {
     echo "  --skip-mysql    跳过 MySQL 容器启动"
     echo "  --skip-data     跳过 BIRD 数据下载和导入"
     echo "  --skip-embed    跳过嵌入生成"
+    echo "  --no-skip-embed 启用嵌入生成"
+    echo "  --no-skip-skeleton 启用问题骨架嵌入（需要 API Key）"
     echo "  --rebuild       重建所有（删除已有数据）"
     echo "  --help          显示帮助"
 }
@@ -42,6 +45,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-embed)
             SKIP_EMBED=true
+            shift
+            ;;
+        --no-skip-embed)
+            SKIP_EMBED=false
+            shift
+            ;;
+        --no-skip-skeleton)
+            SKIP_SKELETON=false
             shift
             ;;
         --rebuild)
@@ -211,6 +222,7 @@ step_download_data() {
     local data_dir="data/bird/mini_dev"
     local mysql_dump="data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql"
     local mini_dev_url="https://drive.usercontent.google.com/download?id=13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG&export=download&authuser=0&confirm=t&uuid=96307f8f-f525-40f2-bc81-5a644744d750&at=AGN2oQ0JHauUIyibFkkblxj4FYgI:1773651631781"
+    local dev_url="https://bird-bench.oss-cn-beijing.aliyuncs.com/dev.zip"
 
     # 如果 MySQL dump 已存在且不是 rebuild 模式，跳过下载
     if [ -f "$mysql_dump" ] && [ "$REBUILD" = "false" ]; then
@@ -233,10 +245,20 @@ step_download_data() {
         curl -L -o "data/bird/minidev.zip" "$mini_dev_url" --retry 3 --connect-timeout 60
     fi
 
+    # 下载 dev 数据集（用于关系图提取）
+    echo "下载 BIRD dev 数据集..."
+    if [ ! -f "data/bird/dev.zip" ]; then
+        curl -L -o "data/bird/dev.zip" "$dev_url" --retry 3 --connect-timeout 60
+    fi
+
     # 解压
     echo "解压数据..."
     unzip -o "data/bird/minidev.zip" -d "data/bird/"
     rm -f "data/bird/minidev.zip"
+
+    echo "解压 dev 数据集..."
+    unzip -o "data/bird/dev.zip" -d "data/bird/"
+    rm -f "data/bird/dev.zip"
 
     echo -e "${GREEN}BIRD 数据下载完成${NC}"
 }
@@ -314,16 +336,18 @@ step_embed_skeleton() {
     PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
     export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 
-    # 查找问题 JSON 文件
-    local input_json=""
-    for f in data/bird/minidev/MINIDEV/*.json; do
-        if [ -f "$f" ]; then
-            input_json="$f"
-            break
-        fi
-    done
+    # 查找问题 JSON 文件（优先使用 mini_dev_mysql.json）
+    local input_json="data/bird/minidev/MINIDEV/mini_dev_mysql.json"
+    if [ ! -f "$input_json" ]; then
+        for f in data/bird/minidev/MINIDEV/*.json; do
+            if [ -f "$f" ]; then
+                input_json="$f"
+                break
+            fi
+        done
+    fi
 
-    if [ -z "$input_json" ]; then
+    if [ -z "$input_json" ] || [ ! -f "$input_json" ]; then
         echo -e "${YELLOW}警告: 未找到问题数据文件，跳过骨架嵌入${NC}"
         return 0
     fi
@@ -340,46 +364,45 @@ step_embed_skeleton() {
 step_extract_relation() {
     echo -e "${GREEN}[7/7]${NC} 提取表关系图..."
 
-    # 加载环境变量
-    if [ -f "config/.env" ]; then
-        source config/.env
-    fi
-
-    # 检查 API Key 是否配置（排除默认值 placeholder）
-    if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your-openai-api-key-here" ]; then
-        if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your-gemini-api-key-here" ]; then
-            echo -e "${YELLOW}警告: 未配置 API Key，跳过关系图提取${NC}"
-            return 0
-        fi
-    fi
-
     # 设置 PYTHONPATH
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
     export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 
-    # 查找问题 JSON 文件
-    local input_json=""
-    for f in data/bird/minidev/MINIDEV/*.json; do
-        if [ -f "$f" ]; then
-            input_json="$f"
-            break
-        fi
-    done
+    # 查找问题 JSON 文件（使用 dev set，排除 mini_dev set）
+    # 优先使用 dev_20240627/dev.json，如果不存在则使用 mini_dev
+    local input_json="data/bird/dev_20240627/dev.json"
+    if [ ! -f "$input_json" ]; then
+        input_json="data/bird/minidev/MINIDEV/mini_dev_mysql.json"
+    fi
 
-    if [ -z "$input_json" ]; then
+    if [ -z "$input_json" ] || [ ! -f "$input_json" ]; then
         echo -e "${YELLOW}警告: 未找到问题数据文件，跳过关系图提取${NC}"
         return 0
     fi
 
+    # 设置需要排除的 mini_dev set 文件（用于排除训练样本）
+    local exclude_json="data/bird/minidev/MINIDEV/mini_dev_mysql.json"
+
     # 创建输出目录
     mkdir -p output/table_relation
 
+    # 构造参数
+    local exclude_arg=""
+    if [ -f "$exclude_json" ]; then
+        exclude_arg="--exclude $exclude_json"
+    fi
+
     echo "运行 extract_relevant_table.py..."
+    echo "  输入: $input_json"
+    if [ -n "$exclude_arg" ]; then
+        echo "  排除: $exclude_json"
+    fi
     cd "$PROJECT_DIR"
-    PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python -m src.pipeline.extract_relevant_table \
+    .venv/bin/python src/pipeline/extract_relevant_table.py \
         --input "$input_json" \
-        --output "output/table_relation/table_relationships.json"
+        --output "output/table_relation/table_relationships.json" \
+        $exclude_arg
 
     echo -e "${GREEN}关系图提取完成${NC}"
 }
@@ -421,7 +444,7 @@ main() {
     fi
 
     # 步骤 6: 骨架嵌入
-    if ! $SKIP_EMBED; then
+    if ! $SKIP_EMBED && ! $SKIP_SKELETON; then
         step_embed_skeleton
     fi
 

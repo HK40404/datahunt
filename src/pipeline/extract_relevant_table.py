@@ -441,6 +441,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='提取表关系')
     parser.add_argument('--input', type=str, default=None, help='输入的JSON文件路径')
     parser.add_argument('--output', type=str, default=None, help='输出的JSON文件路径')
+    parser.add_argument('--exclude', type=str, default=None, help='需要排除的JSON文件路径（将从中加载question_id）')
     parser.add_argument('--host', type=str, default=None, help='MySQL主机地址')
     parser.add_argument('--user', type=str, default=None, help='MySQL用户名')
     parser.add_argument('--password', type=str, default=None, help='MySQL密码')
@@ -467,9 +468,27 @@ if __name__ == "__main__":
     database = args.database or 'bird'
     port = args.port
 
+    # 加载排除列表
+    excluded_question_ids = None
+    if args.exclude:
+        exclude_file = Path(args.exclude)
+        if exclude_file.exists():
+            try:
+                with open(exclude_file, encoding='utf-8') as f:
+                    exclude_data = json.load(f)
+                excluded_question_ids = set(
+                    item.get('question_id')
+                    for item in exclude_data
+                    if 'question_id' in item
+                )
+                print(f"📋 从 {exclude_file} 加载了 {len(excluded_question_ids)} 个需要排除的question_id")
+            except Exception as e:
+                print(f"⚠️  无法加载排除列表: {e}")
+
     # 直接提取为networkX图对象（带数据库验证）
     G = extract_table_relationships_from_json(
         input_file,
+        excluded_question_ids=excluded_question_ids,
         host=host,
         user=user,
         password=password,

@@ -59,16 +59,16 @@ class SummaryNode:
         if not exec_result:
             return "未找到相关数据。"
 
-        # 成功场景：根据结果生成答案
-        result_str = str(exec_result) if exec_result else ""
+        exec_result_str = str(exec_result)
 
         # 根据结果长度选择 system prompt
-        if len(result_str) > 300 and exec_result:
+        if len(exec_result_str) > 300:
             system_prompt = self._system_prompt_long
         else:
             system_prompt = self._system_prompt
 
-        user_prompt = self._build_user_prompt(question, generated_sql, exec_result)
+        exec_result_str = exec_result_str if len(exec_result_str) <= 2000 else exec_result_str[:2000] + "..."
+        user_prompt = self._build_user_prompt(question, generated_sql, exec_result_str)
         logger.debug(f"[SummaryNode] system prompt:\n{system_prompt}")
         logger.debug(f"[SummaryNode] user prompt:\n{user_prompt}")
 

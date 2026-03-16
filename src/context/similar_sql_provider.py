@@ -71,6 +71,11 @@ class SimilarSQLProvider:
             auto_create=False
         )
 
+        # 检查 collection 是否存在
+        self._collection_exists = self._milvus.collection_exists()
+        if not self._collection_exists:
+            logger.warning(f"Collection '{self.collection_name}' 不存在，SimilarSQLProvider 将跳过骨架匹配")
+
     async def _extract_skeleton(self, question: str) -> str:
         """
         提取问题的骨架（复用 extract_question_skeleton.py 的逻辑）
@@ -136,6 +141,11 @@ class SimilarSQLProvider:
         Returns:
             搜索结果列表
         """
+        # 如果 collection 不存在，返回空列表
+        if not self._collection_exists:
+            logger.debug(f"Collection '{self.collection_name}' 不存在，跳过骨架搜索")
+            return []
+
         # 生成稠密向量
         vectors = self._embedder.embed_texts_dense([skeleton])
         query_vector = vectors[0]
@@ -177,8 +187,12 @@ class SimilarSQLProvider:
             top_k = self.default_top_k
 
         # 1. 提取问题骨架
-        skeleton = await self._extract_skeleton(question)
-        logger.debug(f"问题骨架: {skeleton}")
+        try:
+            skeleton = await self._extract_skeleton(question)
+            logger.debug(f"问题骨架: {skeleton}")
+        except Exception as e:
+            logger.warning(f"骨架提取失败: {e}，跳过骨架匹配")
+            return []
 
         # 2. 向量搜索相似骨架
         search_results = self._search_similar_skeletons(skeleton, top_k)

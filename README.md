@@ -45,12 +45,13 @@ bash ./scripts/setup.sh
 | 3. 下载数据 | 从 BIRD 官方下载 mini-dev 数据集 |
 | 4. 导入数据 | 执行 DDL 和数据到 bird 数据库 |
 | 5. Schema 嵌入 | 提取表结构并存入 Milvus 向量库 |
-| 6. 骨架嵌入 | 提取问题骨架并存入向量库 |
+| 6. 骨架嵌入 | 提取问题骨架并存入向量库（需要 API Key，默认跳过） |
 | 7. 关系图 | 提取数据表关联关系 |
 
 ### 选项
 
 - `--skip-mysql` - 跳过 MySQL 启动
 - `--skip-data` - 跳过数据下载
-- `--skip-embed` - 跳过嵌入生成
+- `--skip-embed` - 跳过所有嵌入生成
+- `--no-skip-skeleton` - 启用骨架嵌入（需要配置 `config/.env` 中的 `OPENAI_API_KEY` 或 `GEMINI_API_KEY`）
 - `--rebuild` - 重建所有

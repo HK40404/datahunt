@@ -1,5 +1,6 @@
 import argparse
 import csv
+import json
 import uuid
 from pathlib import Path
 
@@ -10,28 +11,83 @@ from vectordb.metadata import SchemaMetadata
 from vectordb.milvus import MilvusWrapper
 
 
-def load_field_descriptions(table_name: str, field_desc_dir: str | Path = None) -> dict[str, tuple[str, str]]:
+def load_table_db_mapping() -> dict[str, str]:
+    """
+    从 dev_tables.json 加载表名到数据库ID的映射
+
+    Returns:
+        字典，key为表名（小写），value为数据库ID
+    """
+    mapping = {}
+
+    # 尝试多个可能的路径
+    possible_paths = [
+        Path(__file__).parent.parent / "data" / "bird" / "minidev" / "MINIDEV" / "dev_tables.json",
+        Path.cwd() / "data" / "bird" / "minidev" / "MINIDEV" / "dev_tables.json",
+    ]
+
+    for json_path in possible_paths:
+        if json_path.exists():
+            try:
+                with open(json_path, encoding='utf-8') as f:
+                    data = json.load(f)
+                for item in data:
+                    db_id = item.get('db_id', '')
+                    table_names = item.get('table_names', [])
+                    for table_name in table_names:
+                        mapping[table_name.lower()] = db_id
+                print(f"📋 已加载 {len(mapping)} 个表到数据库的映射关系")
+                return mapping
+            except Exception as e:
+                print(f"⚠️  无法加载 dev_tables.json: {e}")
+
+    return mapping
+
+
+def load_field_descriptions(
+    table_name: str,
+    database: str,
+    table_db_mapping: dict[str, str] = None
+) -> dict[str, tuple[str, str]]:
     """
     从CSV文件加载字段描述和data_format
 
     Args:
         table_name: 表名
-        field_desc_dir: 字段描述文件目录，如果为None则使用相对于脚本文件的默认路径
+        database: 当前数据库名
+        table_db_mapping: 表名到数据库ID的映射
 
     Returns:
         字典，key为字段名（original_column_name，小写），value为(column_description, data_format)的元组
     """
-    # 如果未指定，使用相对于脚本文件的默认路径
-    if field_desc_dir is None:
-        field_desc_dir = Path(__file__).parent / "data" / "field_desc"
-    else:
-        # 如果传入的是字符串，转换为Path对象
-        field_desc_dir = Path(field_desc_dir)
-        # 如果是相对路径，则相对于脚本文件
-        if not field_desc_dir.is_absolute():
-            field_desc_dir = Path(__file__).parent / field_desc_dir
-
     field_info = {}
+
+    # 尝试多个可能的路径
+    possible_base_dirs = [
+        Path(__file__).parent.parent / "data" / "bird" / "minidev" / "MINIDEV" / "dev_databases",
+        Path.cwd() / "data" / "bird" / "minidev" / "MINIDEV" / "dev_databases",
+    ]
+
+    field_desc_base_dir = None
+    for base_dir in possible_base_dirs:
+        if base_dir.exists():
+            field_desc_base_dir = base_dir
+            break
+
+    if field_desc_base_dir is None:
+        return field_info
+    # 根据表名确定数据库ID
+    db_id = None
+    if table_db_mapping:
+        db_id = table_db_mapping.get(table_name.lower())
+    if not db_id:
+        db_id = database
+
+    # 查找数据库对应的 description 目录
+    db_desc_dir = field_desc_base_dir / db_id / "database_description"
+
+    if not db_desc_dir.exists():
+        return field_info
 
     # 尝试多种文件名变体
     possible_names = [
@@ -43,7 +99,7 @@ def load_field_descriptions(table_name: str, field_desc_dir: str | Path = None) 
 
     csv_path = None
     for name in possible_names:
-        test_path = field_desc_dir / f"{name}.csv"
+        test_path = db_desc_dir / f"{name}.csv"
         if test_path.exists():
             csv_path = test_path
             break
@@ -89,13 +145,16 @@ def load_field_descriptions(table_name: str, field_desc_dir: str | Path = None) 
     return field_info
 
 
-def export_schema_for_rag(host, user, password, database, output_file, field_desc_dir: str | Path = None, port: int = 3306):
+def export_schema_for_rag(host, user, password, database, output_file, port: int = 3306):
     """
     导出数据库Schema信息
 
     Returns:
         tuple: (rag_contents: list[str], table_metas: list[SchemaMetadata])
     """
+    # 加载表到数据库的映射关系
+    table_db_mapping = load_table_db_mapping()
+
     try:
         print(f"正在连接 MySQL 数据库: {host}:{port}/{database}")
         connection = pymysql.connect(
@@ -130,7 +189,7 @@ def export_schema_for_rag(host, user, password, database, output_file, field_des
                 columns = cursor.fetchall()
 
                 # 加载字段描述信息
-                field_descriptions = load_field_descriptions(table_name, field_desc_dir)
+                field_descriptions = load_field_descriptions(table_name, database, table_db_mapping)
                 if field_descriptions:
                     print(f"  已加载 {len(field_descriptions)} 个字段描述")
 
