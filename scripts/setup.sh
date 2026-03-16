@@ -296,6 +296,11 @@ step_embed_schema() {
 step_embed_skeleton() {
     echo -e "${GREEN}[6/7]${NC} 骨架嵌入..."
 
+    # 加载环境变量
+    if [ -f "config/.env" ]; then
+        source config/.env
+    fi
+
     # 检查 API Key 是否配置
     if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
         echo -e "${YELLOW}警告: 未配置 API Key，跳过骨架嵌入${NC}"
@@ -332,6 +337,11 @@ step_embed_skeleton() {
 
 step_extract_relation() {
     echo -e "${GREEN}[7/7]${NC} 提取表关系图..."
+
+    # 加载环境变量
+    if [ -f "config/.env" ]; then
+        source config/.env
+    fi
 
     # 检查 API Key 是否配置
     if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
