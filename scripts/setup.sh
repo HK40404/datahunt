@@ -113,6 +113,52 @@ step_check_deps() {
 
 step_start_mysql() {
     echo -e "${GREEN}[2/7]${NC} 启动 MySQL..."
+
+    # 如果是 rebuild 模式，先删除已有容器
+    if [ "$REBUILD" = "true" ]; then
+        echo "重建模式，删除已有 MySQL 容器..."
+        docker rm -f datahunt-mysql 2>/dev/null || true
+    fi
+
+    # 检查容器是否已存在
+    if docker ps -a --format '{{.Names}}' | grep -q "^datahunt-mysql$"; then
+        if docker ps --format '{{.Names}}' | grep -q "^datahunt-mysql$"; then
+            echo "MySQL 容器已在运行"
+            return 0
+        else
+            echo "MySQL 容器已存在但未运行，启动它..."
+            docker start datahunt-mysql
+            sleep 10
+            return 0
+        fi
+    fi
+
+    # 创建 MySQL 容器
+    echo "创建 MySQL 容器..."
+    docker run -d \
+        --name datahunt-mysql \
+        -e MYSQL_ROOT_PASSWORD=123 \
+        -e MYSQL_DATABASE=bird \
+        -p 3306:3306 \
+        mysql:8.0
+
+    # 等待 MySQL 就绪
+    echo "等待 MySQL 启动..."
+    local max_attempts=30
+    local attempt=0
+    while [ $attempt -lt $max_attempts ]; do
+        if docker exec datahunt-mysql mysqladmin ping -h localhost -u root -p123 &> /dev/null; then
+            # 启用 LOCAL INFILE 用于 CSV 导入
+            docker exec datahunt-mysql mysql -u root -p123 -e "SET GLOBAL local_infile = 1;"
+            echo -e "${GREEN}MySQL 已就绪${NC}"
+            return 0
+        fi
+        attempt=$((attempt + 1))
+        sleep 2
+    done
+
+    echo -e "${RED}错误: MySQL 启动超时${NC}"
+    exit 1
 }
 
 step_download_data() {
