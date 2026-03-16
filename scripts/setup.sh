@@ -270,7 +270,7 @@ step_embed_schema() {
     if [ ! -d ".venv" ]; then
         echo "安装 Python 依赖..."
         cd "$PROJECT_DIR"
-        uv sync -G api
+        uv sync --all-extras
     fi
 
     # 设置 PYTHONPATH 以便导入 src 模块
