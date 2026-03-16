@@ -301,10 +301,12 @@ step_embed_skeleton() {
         source config/.env
     fi
 
-    # 检查 API Key 是否配置
-    if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
-        echo -e "${YELLOW}警告: 未配置 API Key，跳过骨架嵌入${NC}"
-        return 0
+    # 检查 API Key 是否配置（排除默认值 placeholder）
+    if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your-openai-api-key-here" ]; then
+        if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your-gemini-api-key-here" ]; then
+            echo -e "${YELLOW}警告: 未配置 API Key，跳过骨架嵌入${NC}"
+            return 0
+        fi
     fi
 
     # 设置 PYTHONPATH
@@ -343,10 +345,12 @@ step_extract_relation() {
         source config/.env
     fi
 
-    # 检查 API Key 是否配置
-    if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
-        echo -e "${YELLOW}警告: 未配置 API Key，跳过关系图提取${NC}"
-        return 0
+    # 检查 API Key 是否配置（排除默认值 placeholder）
+    if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your-openai-api-key-here" ]; then
+        if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your-gemini-api-key-here" ]; then
+            echo -e "${YELLOW}警告: 未配置 API Key，跳过关系图提取${NC}"
+            return 0
+        fi
     fi
 
     # 设置 PYTHONPATH
