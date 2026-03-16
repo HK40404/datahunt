@@ -111,6 +111,25 @@ step_check_deps() {
     echo -e "${GREEN}依赖检查通过${NC}"
 }
 
+# 数据迁移：移动现有数据文件到新位置
+migrate_data() {
+    echo "检查数据迁移..."
+
+    # 迁移 field_desc
+    if [ -d "src/pipeline/data/field_desc" ] && [ ! -d "data/field_desc" ]; then
+        echo "迁移 field_desc..."
+        mkdir -p data
+        mv src/pipeline/data/field_desc data/
+    fi
+
+    # 迁移 mini_dev_mysql.json
+    if [ -f "src/pipeline/data/mini_dev_mysql.json" ] && [ ! -f "data/bird/mini_dev_mysql.json" ]; then
+        echo "迁移 mini_dev_mysql.json..."
+        mkdir -p data/bird
+        mv src/pipeline/data/mini_dev_mysql.json data/bird/
+    fi
+}
+
 step_start_mysql() {
     echo -e "${GREEN}[2/7]${NC} 启动 MySQL..."
 
@@ -350,6 +369,9 @@ main() {
     else
         step_check_deps
     fi
+
+    # 数据迁移
+    migrate_data
 
     # 步骤 2: 启动 MySQL
     if ! $SKIP_MYSQL; then
