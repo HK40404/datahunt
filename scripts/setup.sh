@@ -163,12 +163,18 @@ step_start_mysql() {
 
     # 等待 MySQL 就绪
     echo "等待 MySQL 启动..."
-    local max_attempts=30
+    local max_attempts=60
     local attempt=0
     while [ $attempt -lt $max_attempts ]; do
+        # 先等待更长时间让 MySQL 初始化
+        if [ $attempt -lt 15 ]; then
+            sleep 2
+            attempt=$((attempt + 1))
+            continue
+        fi
         if docker exec datahunt-mysql mysqladmin ping -h localhost -u root -p123 &> /dev/null; then
             # 启用 LOCAL INFILE 用于 CSV 导入
-            docker exec datahunt-mysql mysql -u root -p123 -e "SET GLOBAL local_infile = 1;"
+            docker exec datahunt-mysql mysql -u root -p123 -e "SET GLOBAL local_infile = 1;" 2>/dev/null || true
             echo -e "${GREEN}MySQL 已就绪${NC}"
             return 0
         fi
