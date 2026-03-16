@@ -99,12 +99,31 @@ step_check_deps() {
 
     # 检查 .env 配置
     if [ ! -f "config/.env" ]; then
-        echo -e "${YELLOW}警告: config/.env 不存在，请创建并配置 API Key${NC}"
+        echo -e "${YELLOW}警告: config/.env 不存在，正在创建模板文件...${NC}"
+        mkdir -p config
+        cat > config/.env << 'EOF'
+# 请配置你的 API Key
+# OpenAI API Key
+OPENAI_API_KEY=your-openai-api-key-here
+
+# Gemini API Key (可选)
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# LangSmith API Key (可选，用于链路追踪)
+LANGSMITH_API_KEY=
+
+# 以下为内部使用的 API Key 变量，通常与 OPENAI_API_KEY 相同
+SQL_API_KEY=
+SKELETON_EXTRACTOR_API_KEY=
+REWRITE_API_KEY=
+EOF
+        echo -e "${YELLOW}已创建 config/.env 模板文件，请编辑并配置你的 API Key${NC}"
+        echo -e "${YELLOW}注意: 未配置 API Key，部分功能将无法使用${NC}"
     else
         # 验证必要的环境变量
         source config/.env 2>/dev/null || true
-        if [ -z "$OPENAI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
-            echo -e "${YELLOW}警告: 未配置 API Key (OPENAI_API_KEY 或 GOOGLE_API_KEY)${NC}"
+        if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
+            echo -e "${YELLOW}警告: 未配置 API Key (OPENAI_API_KEY 或 GEMINI_API_KEY)${NC}"
         fi
     fi
 
@@ -190,10 +209,11 @@ step_download_data() {
     echo -e "${GREEN}[3/7]${NC} 下载 BIRD 数据..."
 
     local data_dir="data/bird/mini_dev"
-    local bird_url="https://bird-bench.oss-cn-beijing.aliyuncs.com/mini_dev.zip"
+    local dev_url="https://bird-bench.oss-cn-beijing.aliyuncs.com/dev.zip"
+    local mini_dev_url="https://huggingface.co/datasets/birdsql/bird_mini_dev"
 
     # 如果数据已存在且不是 rebuild 模式，跳过
-    if [ -d "$data_dir" ] && [ "$REBUILD" = "false" ]; then
+    if [ -d "$data_dir" ] && [ -d "data/bird/dev_20240627" ] && [ "$REBUILD" = "false" ]; then
         echo "BIRD 数据已存在，跳过下载"
         return 0
     fi
@@ -206,22 +226,52 @@ step_download_data() {
 
     # 创建目录
     mkdir -p "$data_dir"
+    mkdir -p data/bird/dev_20240627
 
-    # 下载数据
-    echo "下载 BIRD mini-dev 数据集..."
-    if command -v wget &> /dev/null; then
-        wget -O "data/bird/mini_dev.zip" "$bird_url"
-    elif command -v curl &> /dev/null; then
-        curl -L -o "data/bird/mini_dev.zip" "$bird_url"
-    else
-        echo -e "${RED}错误: wget 或 curl 未安装${NC}"
-        exit 1
+    # 下载 dev 数据集
+    echo "下载 BIRD dev 数据集..."
+    if command -v curl &> /dev/null; then
+        # 尝试直接下载，如果失败使用代理
+        unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+        curl -L --retry 3 --connect-timeout 30 -o "data/bird/dev.zip" "$dev_url" 2>&1 || {
+            echo "直接下载失败，尝试使用 Python..."
+            source .venv/bin/activate 2>/dev/null || true
+            python -c "
+from datasets import load_dataset
+import json
+ds = load_dataset('birdsql/bird_mini_dev', split='mini_dev_mysql')
+data = [dict(item) for item in ds]
+with open('data/bird/mini_dev_mysql.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+print('Downloaded mini_dev_mysql.json')
+" 2>&1 || true
+        }
     fi
 
-    # 解压
-    echo "解压数据..."
-    unzip -o "data/bird/mini_dev.zip" -d "data/bird/"
-    rm -f "data/bird/mini_dev.zip"
+    # 解压 dev 数据
+    if [ -f "data/bird/dev.zip" ]; then
+        echo "解压 dev 数据..."
+        python -c "
+import zipfile
+import os
+with zipfile.ZipFile('data/bird/dev.zip', 'r') as zip_ref:
+    zip_ref.extractall('data/bird/')
+print('Extracted dev.zip')
+
+# 移动文件到正确位置
+if os.path.exists('data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql'):
+    os.makedirs('data/bird/mini_dev', exist_ok=True)
+    import shutil
+    shutil.copy('data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql', 'data/bird/mini_dev/BIRD_dev.sql')
+    print('Copied BIRD_dev.sql')
+"
+        rm -f data/bird/dev.zip
+    fi
+
+    # 检查是否有 dev.json
+    if [ ! -f "data/bird/dev_20240627/dev.json" ]; then
+        echo "警告: dev.json 不存在，请手动下载"
+    fi
 
     echo -e "${GREEN}BIRD 数据下载完成${NC}"
 }
