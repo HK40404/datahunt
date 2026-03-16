@@ -18,5 +18,32 @@ DataHunt 是一个自然语言转 SQL (Text-to-SQL) 智能体工具。
 * **性能指标**：在 **BIRD Mini-dev** 评估集上实现 **100% 表召回率**，MAP (Mean Average Precision) 提升至 **0.88**。
 
 ### Historical Data-driven Learning
-* **关系图拓展**：解析历史 SQL 语句并构建“数据表关系图”。在基础召回后，基于关系图补充强关联表。
+* **关系图拓展**：解析历史 SQL 语句并构建”数据表关系图”。在基础召回后，基于关系图补充强关联表。
 * **Dynamic Few-shots**：在 SQL 生成前，提取当前问题的逻辑骨架 (Skeleton) 进行向量化检索。匹配最相似的历史 QA 对作为动态示例，提升 SQL 生成的准确率。
+
+## 本地开发环境搭建
+
+### 快速开始
+
+```bash
+./scripts/setup.sh
+```
+
+### 流程说明
+
+| 步骤 | 作用 |
+|------|------|
+| 1. 检查依赖 | 确认 Docker、uv 已安装 |
+| 2. 启动 MySQL | Docker 容器运行 MySQL 8.0 |
+| 3. 下载数据 | 从 BIRD 官方下载 mini-dev 数据集 |
+| 4. 导入数据 | 执行 DDL 和数据到 bird 数据库 |
+| 5. Schema 嵌入 | 提取表结构并存入 Milvus 向量库 |
+| 6. 骨架嵌入 | 提取问题骨架并存入向量库 |
+| 7. 关系图 | 提取数据表关联关系 |
+
+### 选项
+
+- `--skip-mysql` - 跳过 MySQL 启动
+- `--skip-data` - 跳过数据下载
+- `--skip-embed` - 跳过嵌入生成
+- `--rebuild` - 重建所有
