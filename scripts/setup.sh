@@ -287,6 +287,27 @@ step_embed_schema() {
 
 step_embed_skeleton() {
     echo -e "${GREEN}[6/7]${NC} 骨架嵌入..."
+
+    # 查找问题 JSON 文件
+    local input_json=""
+    for f in data/bird/mini_dev/*.json; do
+        if [ -f "$f" ]; then
+            input_json="$f"
+            break
+        fi
+    done
+
+    if [ -z "$input_json" ]; then
+        echo -e "${YELLOW}警告: 未找到问题数据文件，跳过骨架嵌入${NC}"
+        return 0
+    fi
+
+    echo "运行 extract_question_skeleton.py..."
+    .venv/bin/python -m src.pipeline.extract_question_skeleton \
+        --input "$input_json" \
+        --clear
+
+    echo -e "${GREEN}骨架嵌入完成${NC}"
 }
 
 step_extract_relation() {
