@@ -245,6 +245,7 @@ def compare_and_display(skeletons: list[str], questions: list[dict]) -> None:
 async def main():
     # 解析命令行参数
     parser = argparse.ArgumentParser(description='提取问题骨架并处理')
+    parser.add_argument('--input', type=str, default=None, help='输入的JSON文件路径')
     parser.add_argument('--limit', type=int, default=None, help='限制处理的问题数量')
     parser.add_argument('--not-store', action='store_true', help='不保存到数据库，仅比较并展示骨架与原问题')
     parser.add_argument('--concurrency', type=int, default=20, help='并发度，默认20')
@@ -258,7 +259,9 @@ async def main():
     )
 
     # 1. 加载并过滤数据
-    questions = load_and_filter_questions(DEV_JSON, EXCLUDE_JSON)
+    input_path = args.input if args.input else DEV_JSON
+    logger.info(f"使用输入文件: {input_path}")
+    questions = load_and_filter_questions(input_path, EXCLUDE_JSON)
 
     # 应用 limit 限制
     if args.limit:
