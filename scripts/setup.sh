@@ -269,6 +269,7 @@ step_embed_schema() {
     # 检查 uv 依赖
     if [ ! -d ".venv" ]; then
         echo "安装 Python 依赖..."
+        cd "$PROJECT_DIR"
         uv sync
     fi
 
@@ -279,6 +280,7 @@ step_embed_schema() {
 
     # 导出 schema 并嵌入
     echo "运行 ddl_embed_md.py..."
+    cd "$PROJECT_DIR"
     PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python src/pipeline/ddl_embed_md.py \
         --host 127.0.0.1 \
         --port 3306 \
@@ -314,6 +316,7 @@ step_embed_skeleton() {
     fi
 
     echo "运行 extract_question_skeleton.py..."
+    cd "$PROJECT_DIR"
     PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python -m src.pipeline.extract_question_skeleton \
         --input "$input_json" \
         --clear
@@ -347,6 +350,7 @@ step_extract_relation() {
     mkdir -p output/table_relation
 
     echo "运行 extract_relevant_table.py..."
+    cd "$PROJECT_DIR"
     PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python -m src.pipeline.extract_relevant_table \
         --input "$input_json" \
         --output "output/table_relation/table_relationships.json"
