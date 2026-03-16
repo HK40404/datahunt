@@ -301,7 +301,7 @@ step_embed_skeleton() {
 
     # 查找问题 JSON 文件
     local input_json=""
-    for f in data/bird/mini_dev/*.json; do
+    for f in data/bird/minidev/MINIDEV/*.json; do
         if [ -f "$f" ]; then
             input_json="$f"
             break
@@ -331,7 +331,7 @@ step_extract_relation() {
 
     # 查找问题 JSON 文件
     local input_json=""
-    for f in data/bird/mini_dev/*.json; do
+    for f in data/bird/minidev/MINIDEV/*.json; do
         if [ -f "$f" ]; then
             input_json="$f"
             break
