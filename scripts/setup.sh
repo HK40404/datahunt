@@ -203,6 +203,63 @@ step_download_data() {
 
 step_import_data() {
     echo -e "${GREEN}[4/7]${NC} 导入数据到 MySQL..."
+
+    local data_dir="data/bird/mini_dev"
+
+    # 检查数据目录
+    if [ ! -d "$data_dir" ]; then
+        echo -e "${RED}错误: 数据目录不存在，请先运行数据下载${NC}"
+        exit 1
+    fi
+
+    # 查找 DDL 文件
+    local ddl_file=""
+    for f in "$data_dir"/*.sql; do
+        if [[ "$f" == *"ddl"* ]] || [[ "$f" == *"schema"* ]]; then
+            ddl_file="$f"
+            break
+        fi
+    done
+
+    # 如果没找到 ddl 文件，查找第一个 sql 文件
+    if [ -z "$ddl_file" ]; then
+        ddl_file=$(ls "$data_dir"/*.sql 2>/dev/null | head -1)
+    fi
+
+    if [ -z "$ddl_file" ] || [ ! -f "$ddl_file" ]; then
+        echo -e "${RED}错误: 未找到 DDL 文件${NC}"
+        exit 1
+    fi
+
+    echo "使用 DDL 文件: $ddl_file"
+
+    # 导入 DDL（创建表）
+    echo "导入表结构..."
+    docker exec -i datahunt-mysql mysql -u root -p123 bird < "$ddl_file"
+
+    # 查找 CSV 数据文件并导入
+    echo "导入数据..."
+    for csv_file in "$data_dir"/*.csv; do
+        if [ -f "$csv_file" ]; then
+            local table_name=$(basename "$csv_file" .csv)
+            echo "导入表: $table_name"
+
+            # 获取 CSV 的列数
+            local columns=$(head -1 "$csv_file" | tr ',' '\n' | wc -l)
+
+            # 构建 LOAD DATA 语句
+            docker exec -i datahunt-mysql mysql -u root -p123 bird -e "
+                LOAD DATA LOCAL INFILE '$csv_file'
+                INTO TABLE $table_name
+                FIELDS TERMINATED BY ','
+                ENCLOSED BY '\"'
+                LINES TERMINATED BY '\n'
+                IGNORE 1 ROWS;
+            " 2>/dev/null || echo "警告: 表 $table_name 导入失败或表不存在"
+        fi
+    done
+
+    echo -e "${GREEN}数据导入完成${NC}"
 }
 
 step_embed_schema() {
