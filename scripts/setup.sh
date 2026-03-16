@@ -209,11 +209,10 @@ step_download_data() {
     echo -e "${GREEN}[3/7]${NC} 下载 BIRD 数据..."
 
     local data_dir="data/bird/mini_dev"
-    local dev_url="https://bird-bench.oss-cn-beijing.aliyuncs.com/dev.zip"
-    local mini_dev_url="https://huggingface.co/datasets/birdsql/bird_mini_dev"
+    local mini_dev_url="https://drive.usercontent.google.com/download?id=13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG&export=download&authuser=0&confirm=t&uuid=96307f8f-f525-40f2-bc81-5a644744d750&at=AGN2oQ0JHauUIyibFkkblxj4FYgI:1773651631781"
 
     # 如果数据已存在且不是 rebuild 模式，跳过
-    if [ -d "$data_dir" ] && [ -d "data/bird/dev_20240627" ] && [ "$REBUILD" = "false" ]; then
+    if [ -f "$data_dir/BIRD_dev.sql" ] && [ "$REBUILD" = "false" ]; then
         echo "BIRD 数据已存在，跳过下载"
         return 0
     fi
@@ -226,52 +225,117 @@ step_download_data() {
 
     # 创建目录
     mkdir -p "$data_dir"
-    mkdir -p data/bird/dev_20240627
 
-    # 下载 dev 数据集
-    echo "下载 BIRD dev 数据集..."
-    if command -v curl &> /dev/null; then
-        # 尝试直接下载，如果失败使用代理
-        unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
-        curl -L --retry 3 --connect-timeout 30 -o "data/bird/dev.zip" "$dev_url" 2>&1 || {
-            echo "直接下载失败，尝试使用 Python..."
-            source .venv/bin/activate 2>/dev/null || true
-            python -c "
-from datasets import load_dataset
-import json
-ds = load_dataset('birdsql/bird_mini_dev', split='mini_dev_mysql')
-data = [dict(item) for item in ds]
-with open('data/bird/mini_dev_mysql.json', 'w', encoding='utf-8') as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
-print('Downloaded mini_dev_mysql.json')
-" 2>&1 || true
-        }
+    # 下载 mini_dev 数据集
+    echo "下载 BIRD mini_dev 数据集..."
+    if [ ! -f "data/bird/minidev.zip" ]; then
+        curl -L -o "data/bird/minidev.zip" "$mini_dev_url" --retry 3 --connect-timeout 60
     fi
 
-    # 解压 dev 数据
-    if [ -f "data/bird/dev.zip" ]; then
-        echo "解压 dev 数据..."
-        python -c "
-import zipfile
+    # 解压
+    echo "解压数据..."
+    unzip -o "data/bird/minidev.zip" -d "data/bird/"
+    rm -f "data/bird/minidev.zip"
+
+    # 创建 Python 脚本转换为 MySQL
+    cat > /tmp/convert_sqlite_to_mysql.py << 'SCRIPT_EOF'
 import os
-with zipfile.ZipFile('data/bird/dev.zip', 'r') as zip_ref:
-    zip_ref.extractall('data/bird/')
-print('Extracted dev.zip')
+import sqlite3
 
-# 移动文件到正确位置
-if os.path.exists('data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql'):
-    os.makedirs('data/bird/mini_dev', exist_ok=True)
-    import shutil
-    shutil.copy('data/bird/minidev/MINIDEV_mysql/BIRD_dev.sql', 'data/bird/mini_dev/BIRD_dev.sql')
-    print('Copied BIRD_dev.sql')
-"
-        rm -f data/bird/dev.zip
-    fi
+output_dir = "data/bird/mini_dev"
+os.makedirs(output_dir, exist_ok=True)
 
-    # 检查是否有 dev.json
-    if [ ! -f "data/bird/dev_20240627/dev.json" ]; then
-        echo "警告: dev.json 不存在，请手动下载"
-    fi
+mysql_dump = []
+
+# 查找解压后的 SQLite 数据库目录（排除 __MACOSX）
+db_base = None
+for root, dirs, files in os.walk("data/bird"):
+    # 跳过 __MACOSX 目录
+    if "__MACOSX" in root:
+        continue
+    for f in files:
+        if f.endswith(".sqlite"):
+            db_base = os.path.dirname(root)
+            break
+    if db_base:
+        break
+
+if not db_base or not os.path.exists(db_base):
+    print(f"错误: 未找到 SQLite 数据库目录")
+    exit(1)
+
+print(f"使用数据库目录: {db_base}")
+
+for db_name in os.listdir(db_base):
+    db_path = os.path.join(db_base, db_name, f"{db_name}.sqlite")
+    if not os.path.exists(db_path):
+        continue
+
+    print(f"处理数据库: {db_name}")
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # 获取所有表
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+
+        for table_name, in tables:
+            # 获取表结构
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            columns = cursor.fetchall()
+
+            # 生成 CREATE TABLE 语句
+            col_defs = []
+            for col in columns:
+                col_name, col_type, notnull, default_val, pk = col[1], col[2], col[3], col[4], col[5]
+                col_type = col_type.replace('INTEGER', 'INT').replace('TEXT', 'VARCHAR(255)').replace('REAL', 'DOUBLE').replace('BLOB', 'BLOB')
+                col_def = f"`{col_name}` {col_type}"
+                if notnull:
+                    col_def += " NOT NULL"
+                if default_val:
+                    col_def += f" DEFAULT {default_val}"
+                if pk:
+                    col_def += " PRIMARY KEY"
+                col_defs.append(col_def)
+
+            create_sql = f"CREATE TABLE `{table_name}` (\n  " + ",\n  ".join(col_defs) + "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+            mysql_dump.append(create_sql)
+
+            # 获取数据
+            cursor.execute(f"SELECT * FROM {table_name}")
+            rows = cursor.fetchall()
+
+            if rows:
+                # 生成 INSERT 语句
+                for row in rows:
+                    vals = []
+                    for val in row:
+                        if val is None:
+                            vals.append("NULL")
+                        elif isinstance(val, (int, float)):
+                            vals.append(str(val))
+                        else:
+                            escaped = str(val).replace("'", "''")
+                            vals.append(f"'{escaped}'")
+                    insert_sql = f"INSERT INTO `{table_name}` VALUES ({', '.join(vals)});"
+                    mysql_dump.append(insert_sql)
+
+        conn.close()
+        print(f"  完成: {db_name}")
+
+    except Exception as e:
+        print(f"  错误: {db_name} - {e}")
+
+# 写入 MySQL dump 文件
+with open(f"{output_dir}/BIRD_dev.sql", 'w') as f:
+    f.write("\n".join(mysql_dump))
+
+print(f"MySQL dump 已保存到: {output_dir}/BIRD_dev.sql")
+print("转换完成")
+SCRIPT_EOF
+
+    python3 /tmp/convert_sqlite_to_mysql.py
 
     echo -e "${GREEN}BIRD 数据下载完成${NC}"
 }
@@ -287,52 +351,31 @@ step_import_data() {
         exit 1
     fi
 
-    # 查找 DDL 文件
-    local ddl_file=""
+    # 查找 MySQL dump 文件 (BIRD_dev.sql)
+    local sql_file=""
     for f in "$data_dir"/*.sql; do
-        if [[ "$f" == *"ddl"* ]] || [[ "$f" == *"schema"* ]]; then
-            ddl_file="$f"
+        if [[ "$f" == *"BIRD"* ]]; then
+            sql_file="$f"
             break
         fi
     done
 
-    # 如果没找到 ddl 文件，查找第一个 sql 文件
-    if [ -z "$ddl_file" ]; then
-        ddl_file=$(ls "$data_dir"/*.sql 2>/dev/null | head -1)
+    # 如果没找到，查找第一个 sql 文件
+    if [ -z "$sql_file" ]; then
+        sql_file=$(ls "$data_dir"/*.sql 2>/dev/null | head -1)
     fi
 
-    if [ -z "$ddl_file" ] || [ ! -f "$ddl_file" ]; then
-        echo -e "${RED}错误: 未找到 DDL 文件${NC}"
+    if [ -z "$sql_file" ] || [ ! -f "$sql_file" ]; then
+        echo -e "${RED}错误: 未找到 MySQL 数据文件 (*.sql)${NC}"
+        echo "请确保 $data_dir 目录下有 BIRD_dev.sql 文件"
         exit 1
     fi
 
-    echo "使用 DDL 文件: $ddl_file"
+    echo "使用 MySQL 数据文件: $sql_file"
 
-    # 导入 DDL（创建表）
-    echo "导入表结构..."
-    docker exec -i datahunt-mysql mysql -u root -p123 bird < "$ddl_file"
-
-    # 查找 CSV 数据文件并导入
-    echo "导入数据..."
-    for csv_file in "$data_dir"/*.csv; do
-        if [ -f "$csv_file" ]; then
-            local table_name=$(basename "$csv_file" .csv)
-            echo "导入表: $table_name"
-
-            # 获取 CSV 的列数
-            local columns=$(head -1 "$csv_file" | tr ',' '\n' | wc -l)
-
-            # 构建 LOAD DATA 语句
-            docker exec -i datahunt-mysql mysql -u root -p123 bird -e "
-                LOAD DATA LOCAL INFILE '$csv_file'
-                INTO TABLE $table_name
-                FIELDS TERMINATED BY ','
-                ENCLOSED BY '\"'
-                LINES TERMINATED BY '\n'
-                IGNORE 1 ROWS;
-            " 2>/dev/null || echo "警告: 表 $table_name 导入失败或表不存在"
-        fi
-    done
+    # 直接导入完整的 MySQL dump 文件（包含表结构和数据）
+    echo "导入数据到 MySQL（这可能需要几分钟）..."
+    docker exec -i datahunt-mysql mysql -u root -p123 bird < "$sql_file"
 
     echo -e "${GREEN}数据导入完成${NC}"
 }
@@ -346,9 +389,14 @@ step_embed_schema() {
         uv sync
     fi
 
+    # 设置 PYTHONPATH 以便导入 src 模块
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+    export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
+
     # 导出 schema 并嵌入
     echo "运行 ddl_embed_md.py..."
-    .venv/bin/python src/pipeline/ddl_embed_md.py \
+    PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python src/pipeline/ddl_embed_md.py \
         --host 127.0.0.1 \
         --port 3306 \
         --user root \
@@ -362,6 +410,11 @@ step_embed_schema() {
 
 step_embed_skeleton() {
     echo -e "${GREEN}[6/7]${NC} 骨架嵌入..."
+
+    # 设置 PYTHONPATH
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+    export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 
     # 查找问题 JSON 文件
     local input_json=""
@@ -378,7 +431,7 @@ step_embed_skeleton() {
     fi
 
     echo "运行 extract_question_skeleton.py..."
-    .venv/bin/python -m src.pipeline.extract_question_skeleton \
+    PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python -m src.pipeline.extract_question_skeleton \
         --input "$input_json" \
         --clear
 
@@ -387,6 +440,11 @@ step_embed_skeleton() {
 
 step_extract_relation() {
     echo -e "${GREEN}[7/7]${NC} 提取表关系图..."
+
+    # 设置 PYTHONPATH
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+    export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 
     # 查找问题 JSON 文件
     local input_json=""
@@ -406,7 +464,7 @@ step_extract_relation() {
     mkdir -p output/table_relation
 
     echo "运行 extract_relevant_table.py..."
-    .venv/bin/python -m src.pipeline.extract_relevant_table \
+    PYTHONPATH="$PROJECT_DIR/src" .venv/bin/python -m src.pipeline.extract_relevant_table \
         --input "$input_json" \
         --output "output/table_relation/table_relationships.json"
 
