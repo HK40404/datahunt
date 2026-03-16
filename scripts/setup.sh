@@ -163,6 +163,42 @@ step_start_mysql() {
 
 step_download_data() {
     echo -e "${GREEN}[3/7]${NC} 下载 BIRD 数据..."
+
+    local data_dir="data/bird/mini_dev"
+    local bird_url="https://bird-bench.oss-cn-beijing.aliyuncs.com/mini_dev.zip"
+
+    # 如果数据已存在且不是 rebuild 模式，跳过
+    if [ -d "$data_dir" ] && [ "$REBUILD" = "false" ]; then
+        echo "BIRD 数据已存在，跳过下载"
+        return 0
+    fi
+
+    # 如果是 rebuild 模式，删除旧数据
+    if [ "$REBUILD" = "true" ]; then
+        echo "重建模式，删除旧数据..."
+        rm -rf data/bird
+    fi
+
+    # 创建目录
+    mkdir -p "$data_dir"
+
+    # 下载数据
+    echo "下载 BIRD mini-dev 数据集..."
+    if command -v wget &> /dev/null; then
+        wget -O "data/bird/mini_dev.zip" "$bird_url"
+    elif command -v curl &> /dev/null; then
+        curl -L -o "data/bird/mini_dev.zip" "$bird_url"
+    else
+        echo -e "${RED}错误: wget 或 curl 未安装${NC}"
+        exit 1
+    fi
+
+    # 解压
+    echo "解压数据..."
+    unzip -o "data/bird/mini_dev.zip" -d "data/bird/"
+    rm -f "data/bird/mini_dev.zip"
+
+    echo -e "${GREEN}BIRD 数据下载完成${NC}"
 }
 
 step_import_data() {
