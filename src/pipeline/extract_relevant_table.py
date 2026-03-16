@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 
@@ -436,15 +437,35 @@ def save_table_relationships(G: nx.Graph, output_file: str | Path):
 
 
 if __name__ == "__main__":
-    # 输入文件路径
-    input_file = Path(__file__).parent.parent.parent / "data" / "dev_20240627" / "dev.json"
+    import argparse
+    parser = argparse.ArgumentParser(description='提取表关系')
+    parser.add_argument('--input', type=str, default=None, help='输入的JSON文件路径')
+    parser.add_argument('--output', type=str, default=None, help='输出的JSON文件路径')
+    parser.add_argument('--host', type=str, default=None, help='MySQL主机地址')
+    parser.add_argument('--user', type=str, default=None, help='MySQL用户名')
+    parser.add_argument('--password', type=str, default=None, help='MySQL密码')
+    parser.add_argument('--database', type=str, default=None, help='数据库名')
+    parser.add_argument('--port', type=int, default=3306, help='MySQL端口')
+    args = parser.parse_args()
 
-    # 数据库配置（参考ddl_embed_md.py）
-    host = '127.0.0.1'
-    user = 'root'
-    password = '123'
-    database = 'bird'
-    port = 3306
+    # 修改输入文件路径
+    if args.input:
+        input_file = args.input
+    else:
+        input_file = Path(__file__).parent.parent.parent / "data" / "dev_20240627" / "dev.json"
+
+    # 修改输出文件路径
+    if args.output:
+        output_file = args.output
+    else:
+        output_file = Path(__file__).parent / "output" / "table_relation" / "table_relationships.json"
+
+    # 数据库配置
+    host = args.host or '127.0.0.1'
+    user = args.user or 'root'
+    password = args.password or '123'
+    database = args.database or 'bird'
+    port = args.port
 
     # 直接提取为networkX图对象（带数据库验证）
     G = extract_table_relationships_from_json(
@@ -460,6 +481,5 @@ if __name__ == "__main__":
     print_table_relationships(G, top_n=10, max_tables=5)
 
     # 保存为networkX的JSON格式
-    output_file = Path(__file__).parent / "output" / "table_relation" / "table_relationships.json"
     save_table_relationships(G, output_file)
 
