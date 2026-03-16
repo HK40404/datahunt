@@ -60,9 +60,55 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 步骤函数（暂为空实现）
+# 步骤函数
 step_check_deps() {
     echo -e "${GREEN}[1/7]${NC} 检查依赖..."
+
+    # 检查 Docker
+    if ! command -v docker &> /dev/null; then
+        echo -e "${RED}错误: Docker 未安装${NC}"
+        echo "请访问 https://www.docker.com/get-started 安装 Docker"
+        exit 1
+    fi
+
+    # 检查 Docker 是否运行
+    if ! docker info &> /dev/null; then
+        echo -e "${RED}错误: Docker 未运行${NC}"
+        echo "请启动 Docker Desktop 或 docker 服务"
+        exit 1
+    fi
+
+    # 检查 uv
+    if ! command -v uv &> /dev/null; then
+        echo -e "${RED}错误: uv 未安装${NC}"
+        echo "请运行: curl -LsSf https://astral.sh/uv/install.sh | sh"
+        exit 1
+    fi
+
+    # 检查 Python 版本
+    if ! command -v python &> /dev/null; then
+        echo -e "${RED}错误: Python 未安装${NC}"
+        exit 1
+    fi
+    PYTHON_VERSION=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    REQUIRED_VERSION="3.13"
+    if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$PYTHON_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then
+        echo -e "${RED}错误: Python 版本需要 3.13+，当前版本: $PYTHON_VERSION${NC}"
+        exit 1
+    fi
+
+    # 检查 .env 配置
+    if [ ! -f "config/.env" ]; then
+        echo -e "${YELLOW}警告: config/.env 不存在，请创建并配置 API Key${NC}"
+    else
+        # 验证必要的环境变量
+        source config/.env 2>/dev/null || true
+        if [ -z "$OPENAI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
+            echo -e "${YELLOW}警告: 未配置 API Key (OPENAI_API_KEY 或 GOOGLE_API_KEY)${NC}"
+        fi
+    fi
+
+    echo -e "${GREEN}依赖检查通过${NC}"
 }
 
 step_start_mysql() {
