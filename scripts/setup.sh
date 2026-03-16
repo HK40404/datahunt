@@ -296,6 +296,12 @@ step_embed_schema() {
 step_embed_skeleton() {
     echo -e "${GREEN}[6/7]${NC} 骨架嵌入..."
 
+    # 检查 API Key 是否配置
+    if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
+        echo -e "${YELLOW}警告: 未配置 API Key，跳过骨架嵌入${NC}"
+        return 0
+    fi
+
     # 设置 PYTHONPATH
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -326,6 +332,12 @@ step_embed_skeleton() {
 
 step_extract_relation() {
     echo -e "${GREEN}[7/7]${NC} 提取表关系图..."
+
+    # 检查 API Key 是否配置
+    if [ -z "$OPENAI_API_KEY" ] && [ -z "$GEMINI_API_KEY" ]; then
+        echo -e "${YELLOW}警告: 未配置 API Key，跳过关系图提取${NC}"
+        return 0
+    fi
 
     # 设置 PYTHONPATH
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
