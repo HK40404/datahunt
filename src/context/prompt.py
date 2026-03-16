@@ -37,6 +37,7 @@ class QuestionMaskPrompt(BaseModel):
 
 class SQLSummaryPrompt(BaseModel):
     system: str = ""
+    system_long_answer: str = ""
     user: str = ""
 
 
