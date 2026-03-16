@@ -25,8 +25,8 @@ DataHunt 是一个自然语言转 SQL (Text-to-SQL) 智能体工具。
 
 ### 前置要求
 
-- **Docker** - 用于运行 MySQL 8.0 容器（如未安装，请先 [安装 Docker Desktop](https://www.docker.com/get-started)）
-- **uv** - Python 包管理工具（安装方式：`curl -LsSf https://astral.sh/uv/install.sh | sh`）
+- **Docker** - 用于运行 MySQL 8.0 容器
+- **uv** - Python 包管理工具
 - **Python 3.13+** - 项目使用 Python 3.13
 
 ### 快速开始
