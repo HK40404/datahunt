@@ -264,6 +264,25 @@ step_import_data() {
 
 step_embed_schema() {
     echo -e "${GREEN}[5/7]${NC} Schema 嵌入..."
+
+    # 检查 uv 依赖
+    if [ ! -d ".venv" ]; then
+        echo "安装 Python 依赖..."
+        uv sync
+    fi
+
+    # 导出 schema 并嵌入
+    echo "运行 ddl_embed_md.py..."
+    .venv/bin/python src/pipeline/ddl_embed_md.py \
+        --host 127.0.0.1 \
+        --port 3306 \
+        --user root \
+        --password 123 \
+        --database bird \
+        --output output/rag_schema.sql \
+        --collection bird
+
+    echo -e "${GREEN}Schema 嵌入完成${NC}"
 }
 
 step_embed_skeleton() {
