@@ -312,6 +312,30 @@ step_embed_skeleton() {
 
 step_extract_relation() {
     echo -e "${GREEN}[7/7]${NC} 提取表关系图..."
+
+    # 查找问题 JSON 文件
+    local input_json=""
+    for f in data/bird/mini_dev/*.json; do
+        if [ -f "$f" ]; then
+            input_json="$f"
+            break
+        fi
+    done
+
+    if [ -z "$input_json" ]; then
+        echo -e "${YELLOW}警告: 未找到问题数据文件，跳过关系图提取${NC}"
+        return 0
+    fi
+
+    # 创建输出目录
+    mkdir -p output/table_relation
+
+    echo "运行 extract_relevant_table.py..."
+    .venv/bin/python -m src.pipeline.extract_relevant_table \
+        --input "$input_json" \
+        --output "output/table_relation/table_relationships.json"
+
+    echo -e "${GREEN}关系图提取完成${NC}"
 }
 
 # 主流程
